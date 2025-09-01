@@ -13,6 +13,85 @@ Payment Processing: Integrate a payment system to handle transactions and record
 Review System: Allow users to leave reviews and ratings for properties.
 Data Optimization: Ensure efficient data retrieval and storage through database optimizations.
 
+# Database Design
+Database Design
+Key Entities & Fields
+# 1) Users
+
+user_id — UUID, PK
+
+email — VARCHAR, UNIQUE, NOT NULL
+
+password_hash — VARCHAR, NOT NULL
+
+role — ENUM: guest | host | admin, NOT NULL
+
+created_at — TIMESTAMP, default CURRENT_TIMESTAMP
+
+# 2) Properties
+
+property_id — UUID, PK
+
+host_id — UUID, FK → Users.user_id
+
+name — VARCHAR, NOT NULL
+
+location — VARCHAR, NOT NULL
+
+price_per_night — DECIMAL(10,2), NOT NULL
+
+# 3) Bookings
+
+booking_id — UUID, PK
+
+property_id — UUID, FK → Properties.property_id
+
+user_id — UUID, FK → Users.user_id
+
+start_date / end_date — DATE, NOT NULL (end > start)
+
+status — ENUM: pending | confirmed | canceled
+
+# 4) Payments
+
+payment_id — UUID, PK
+
+booking_id — UUID, FK → Bookings.booking_id
+
+amount — DECIMAL(12,2), NOT NULL
+
+payment_method — ENUM: credit_card | paypal | stripe
+
+payment_date — TIMESTAMP, default CURRENT_TIMESTAMP
+
+# 5) Reviews
+
+review_id — UUID, PK
+
+property_id — UUID, FK → Properties.property_id
+
+user_id — UUID, FK → Users.user_id
+
+rating — INT CHECK 1–5, NOT NULL
+
+comment — TEXT, NOT NULL
+
+# Relationships (Cardinality & Direction)
+
+User (host) 1 — * Property: a host can list many properties; each property belongs to one host (Properties.host_id).
+
+User (guest) 1 — * Booking: a guest can make many bookings; each booking is made by one user (Bookings.user_id).
+
+Property 1 — * Booking: a property can have many bookings; each booking targets one property (Bookings.property_id).
+
+Booking 1 — 0..1 Payment: a booking may have zero or one payment (Payments.booking_id).
+
+Property 1 — * Review and User 1 — * Review: reviews link a user to a property; a property has many reviews, and a user can write many reviews (one review row belongs to one user and one property).
+
+Index tips (optional but recommended):
+Users(email), Properties(host_id, location, price_per_night), Bookings(property_id, user_id, start_date, end_date), Payments(booking_id), Reviews(property_id, user_id).
+
+
 # 🛠️ Features Overview
 # 1. API Documentation
 OpenAPI Standard: The backend APIs are documented using the OpenAPI standard to ensure clarity and ease of integration.
@@ -195,4 +274,6 @@ Even in Agile environments, development and operations teams can be siloed. DevO
 
 Looking for a professional team to deliver your project?
 Contact us
+
+
 
