@@ -19,25 +19,17 @@ Key Entities & Fields
 # 1) Users
 
 user_id — UUID, PK
-
 email — VARCHAR, UNIQUE, NOT NULL
-
 password_hash — VARCHAR, NOT NULL
-
 role — ENUM: guest | host | admin, NOT NULL
-
 created_at — TIMESTAMP, default CURRENT_TIMESTAMP
 
 # 2) Properties
 
 property_id — UUID, PK
-
 host_id — UUID, FK → Users.user_id
-
 name — VARCHAR, NOT NULL
-
 location — VARCHAR, NOT NULL
-
 price_per_night — DECIMAL(10,2), NOT NULL
 
 # 3) Bookings
@@ -93,6 +85,7 @@ Users(email), Properties(host_id, location, price_per_night), Bookings(property_
 
 
 # 🛠️ Features Overview
+# Feature Breakdown
 # 1. API Documentation
 OpenAPI Standard: The backend APIs are documented using the OpenAPI standard to ensure clarity and ease of integration.
 Django REST Framework: Provides a comprehensive RESTful API for handling CRUD operations on user and property data.
