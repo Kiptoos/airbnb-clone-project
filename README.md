@@ -268,5 +268,79 @@ Even in Agile environments, development and operations teams can be siloed. DevO
 Looking for a professional team to deliver your project?
 Contact us
 
+# API Security
+Authentication: Short-lived JWT (or session cookies) + refresh tokens; passwords hashed with Argon2id/bcrypt + per-user salt and server-side pepper; optional MFA; email verification & secure password reset flows.
+Authorization (RBAC + ownership): Roles: guest, host, admin. Enforce resource ownership (e.g., only the host can mutate their property; only the booking user can view their booking). Deny-by-default.
+Transport security: TLS (HTTPS) only, HSTS, secure cookies (HttpOnly, Secure, SameSite), strict CORS policy for allowed origins and methods.
+Input & query safety: Centralized validation (e.g., zod/express-validator), size limits, allowlists; parameterized SQL everywhere; output encoding to prevent XSS in any rendered content.
+Rate limiting & abuse controls: IP + user-level throttles (e.g., token bucket 60 req/min with bursts), captcha on auth endpoints after failures, pagination caps, file upload size/type limits.
+Secrets & keys: Store in a secrets manager (Vault/SSM), rotate regularly; never commit secrets. Separate prod/test keys; per-service API keys with least privilege.
+Data protection: Encrypt at rest (DB/disk backups) and in transit; PII minimization; audit trails for privileged actions; soft-delete with retention policy.
+Payments hardening: Do not store card PAN/CVV. Use provider tokens (Stripe/PayPal). Verify webhooks with signatures, require idempotency keys for payment mutations.
+Logging & monitoring: Structured logs (no PII/credentials), security events to SIEM; anomaly alerts (login spikes, 4xx/5xx bursts); WAF/bot protection in front of the API.
+Operational hygiene: Dependency scanning (Snyk/OWASP-Dependency-Check), frequent patching; container image scanning; least-privilege DB roles; daily encrypted backups + restore drills.
+Secure headers: CSP, X-Frame-Options/Frame-Ancestors, X-Content-Type-Options, Referrer-Policy.
+Incident readiness: Playbooks for key leakage, account takeover, data exposure; breach notifications; keys/credential rotation checklist.
 
+# Why security matters by project area
+
+# User accounts & profiles
+Risk: Account takeover, PII leaks.
+Measures: Strong auth (MFA, hashed passwords), session/JWT hardening, rate limits on login/reset, minimal PII stored.
+
+# Outcome: Protects identity and personal data.
+Properties (host assets)
+Risk: Unauthorized edits, scraping of listings.
+Measures: RBAC + ownership checks on every write, pagination caps & caching, signed URLs for private media.
+Outcome: Hosts control their listings; platform integrity.
+
+# Bookings
+
+Risk: Viewing or altering someone else’s bookings; race conditions.
+
+Measures: Ownership checks, idempotent booking operations, server-side date validation (no overlaps), optimistic locking where needed.
+
+Outcome: Confidentiality of itineraries; consistent state.
+
+# Payments
+
+Risk: Fraud, replay, PCI scope creep.
+
+Measures: Provider tokens only (no raw cards), webhook signature verification, idempotency keys, strict amount validation, audit trails.
+
+Outcome: Funds flow securely; lower compliance burden.
+
+# Reviews
+
+Risk: Spam, defamatory or malicious content.
+
+Measures: Auth required, rate limits per user/property, moderation queue/filters, report-and-block tools.
+
+Outcome: Trustworthy reputation signals.
+
+# Messages (user ↔ host)
+
+Risk: Privacy leaks, harassment, phishing.
+
+Measures: End-to-end TLS, access limited to participants, abuse reporting, content throttling; metadata minimization.
+
+Outcome: Safer, private communication channel.
+
+# Admin operations
+
+Risk: Privilege misuse.
+
+Measures: Admin-only scopes, just-in-time access, mandatory 2FA, full audit logging of admin actions.
+
+Outcome: Governance and accountability.
+
+# Infrastructure & data
+
+Risk: Lateral movement, data loss.
+
+Measures: Network segmentation, least-privilege DB roles, backups encrypted & tested, environment isolation (dev/stage/prod).
+
+Outcome: Resilience and quick recovery.
+
+Default stance: Least privilege, deny by default, validate everything, log sensitive events, and rotate secrets.
 
